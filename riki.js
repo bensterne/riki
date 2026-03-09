@@ -80,7 +80,7 @@ async function generateAndUpdateWiki() {
     git(tmpWiki, "remote", "add", "origin", wikiUrl);
 
     const initFile = path.join(tmpWiki, `${wikiPageName}.md`);
-    fs.writeFileSync(initFile, `# ${config.wikiPage}\n\n`);
+    fs.writeFileSync(initFile, "");
 
     git(tmpWiki, "add", ".");
     git(tmpWiki, "commit", "-m", "riki: initialize wiki");
@@ -96,7 +96,7 @@ async function generateAndUpdateWiki() {
     const wikiFile = path.join(tmpWiki, `${wikiPageName}.md`);
     let wikiContent = fs.existsSync(wikiFile)
       ? fs.readFileSync(wikiFile, "utf8")
-      : `# ${config.wikiPage}\n\n`;
+      : "";
 
     // 6. Build the new section with HTML comment markers
     const timestamp = new Date().toUTCString();
