@@ -51,7 +51,7 @@ async function generateAndUpdateWiki() {
     max_tokens: maxTokens,
     messages: [{
       role: "user",
-      content: `Generate clear documentation for this code file named ${filename}.
+      content: `Generate clear documentation for this code file. Do not repeat the filename as a heading.
                 Include a description, list of methods/properties, and any important notes.
                 Use markdown formatting.
                 Do not include the code itself.
