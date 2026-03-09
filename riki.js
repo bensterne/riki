@@ -110,7 +110,7 @@ async function generateAndUpdateWiki() {
 
     // 7. Replace existing section or append
     const escapedFilename = escapeRegex(filename);
-    const sectionRegex = () => new RegExp(`## ${escapedFilename}[\\s\\S]*?(?=## |$)`, "g");
+    const sectionRegex = () => new RegExp(`## ${escapedFilename}\\n[\\s\\S]*?(?=\\n## |$)`, "g");
     
     if (sectionRegex().test(wikiContent)) {
       wikiContent = wikiContent.replace(sectionRegex(), newSection);
