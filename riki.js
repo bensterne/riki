@@ -24,11 +24,6 @@ const config = fs.existsSync(configPath)
 const wikiPageName = config.wikiPage.replace(/ /g, "-");
 const maxTokens = config.maxTokens ?? 2048;
 
-// Escape special regex characters in a string
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 // Safe git wrapper using execFileSync (no shell interpolation)
 function git(cwd, ...args) {
   return execFileSync("git", ["-C", cwd, ...args], { encoding: "utf8" }).trim();
@@ -103,17 +98,18 @@ async function generateAndUpdateWiki() {
       ? fs.readFileSync(wikiFile, "utf8")
       : `# ${config.wikiPage}\n\n`;
 
-    // 6. Build the new section
+    // 6. Build the new section with HTML comment markers
     const timestamp = new Date().toUTCString();
+    const BEGIN_MARKER = `<!-- RIKI:BEGIN ${filename} -->`;
+    const END_MARKER = `<!-- RIKI:END ${filename} -->`;
     const sectionHeader = `## ${filename}`;
-    const newSection = `${sectionHeader}\n_Last updated: ${timestamp}_\n\n${newDocs}\n\n---\n`;
+    const newSection = `${BEGIN_MARKER}\n${sectionHeader}\n_Last updated: ${timestamp}_\n\n${newDocs}\n\n---\n${END_MARKER}\n`;
 
-    // 7. Replace existing section or append
-    const escapedFilename = escapeRegex(filename);
-    const sectionRegex = () => new RegExp(`## ${escapedFilename}\\n[\\s\\S]*?(?=\\n## |$)`, "g");
-    
-    if (sectionRegex().test(wikiContent)) {
-      wikiContent = wikiContent.replace(sectionRegex(), newSection);
+    // 7. Replace existing section (exact match) or append
+    if (wikiContent.includes(BEGIN_MARKER)) {
+      const before = wikiContent.substring(0, wikiContent.indexOf(BEGIN_MARKER));
+      const after = wikiContent.substring(wikiContent.indexOf(END_MARKER) + END_MARKER.length);
+      wikiContent = before + newSection + after;
       console.log(`🔄 Updated existing section for ${filename}`);
     } else {
       wikiContent += newSection;
